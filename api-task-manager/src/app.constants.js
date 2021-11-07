@@ -2,6 +2,7 @@ module.exports = {
   DATABASE_DOCUMENTS: {
     USERS: 'users',
     TOKENS: 'tokens',
+    TASKS: 'tasks',
   },
   TOKEN_TYPES: {
     ACCESS: 'access',

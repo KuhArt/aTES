@@ -49,6 +49,7 @@
     "google-auth-library": "7.0.4",
     "http-proxy-middleware": "2.0.1",
     "joi": "17.4.0",
+    "jsonwebtoken": "8.5.1",
     "kafkajs": "1.15.0",
     "koa": "2.13.1",
     "koa-bodyparser": "4.3.0",

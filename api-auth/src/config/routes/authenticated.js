@@ -6,13 +6,13 @@ const userResource = require('resources/user');
 
 module.exports = (app) => {
   app.use(convert(proxy.createProxyMiddleware((
-    '/users',
+    '/tasks',
     {
       logLevel: 'debug',
       target: 'http://api-task-manager:3001',
       changeOrigin: true,
     }
    ))));
- // app.use(mount('/users', userResource));
+  app.use(mount('/users', userResource));
 };
 

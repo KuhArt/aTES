@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: column;
+
+  &:focus-within {
+    color: var(--blue);
+  }
+
+  &.error {
+    color: var(--red);
+
+    &:focus-within {
+      color: var(--red);
+    }
+  }
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  transition: all 0.2s ease-in-out;
+}
+
+.textarea {
+  margin-top: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--gray);
+  font-size: 14px;
+  line-height: 21px;
+  outline: none;
+  resize: none;
+  transition: all 0.2s ease-in-out;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:focus {
+    border: 1px solid var(--blue);
+  }
+
+  &:disabled {
+    background-color: var(--gray-light);
+  }
+
+  &:hover:not(:focus):not(:disabled) {
+    border: 1px solid var(--gray-dark);
+  }
+
+  &::placeholder {
+    color: var(--gray-dark);
+  }
+
+  &.error {
+    border-color: var(--red);
+
+    &:focus {
+      border-color: var(--red);
+    }
+
+    &:hover:not(:focus) {
+      border-color: var(--red);
+    }
+  }
+}
+
+.errorMessage {
+  margin-top: 2px;
+  color: var(--red);
+  font-size: 12px;
+  line-height: 15px;
+  word-wrap: break-word;
+}

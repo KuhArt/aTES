@@ -1,0 +1,146 @@
+version: '3.6'
+services:
+  zookeeper:
+    container_name: aTes-zookeeper
+    image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - 2181:2181
+    networks:
+      - aTes
+
+  kafka:
+    container_name: aTes-kafka
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - 9092:9092
+    networks:
+      - aTes
+    depends_on:
+      - zookeeper  
+  mongo:
+    container_name: aTes-mongo
+    image: mongo:4.2
+    command: --replSet rs --bind_ip_all
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    networks:
+      - aTes
+    ports:
+      - 27017:27017
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: volume
+        source: mongodb
+        target: /data/db
+      - type: volume
+        source: mongodb-cfg
+        target: /data/configdb
+  mongo-replicator:
+    container_name: aTes-mongo-replicator
+    build: ./mongo-replicator
+    environment:
+      - HOST=mongo
+      - PORT=27017
+      - USERNAME=root
+      - PASSWORD=root
+      - REPLICA_SET_NAME=rs
+    networks:
+      - aTes
+    depends_on:
+      - mongo
+  redis:
+    container_name: aTes-redis
+    image: redis:5.0.5
+    command: redis-server --appendonly yes
+    hostname: redis
+    networks:
+      - aTes
+    ports:
+      - 6379:6379
+  api-auth:
+    container_name: aTes-api-auth
+    build:
+      context: ./api-auth
+      dockerfile: Dockerfile.dev
+    networks:
+      - aTes
+    environment:
+      APP_ENV: development
+    volumes:
+      - ./api-auth/src:/app/src
+    ports:
+      - 3001:3001
+      - 8082:8082
+    depends_on:
+      - redis
+      - mongo-replicator
+  api-auth-migrator:
+    container_name: api-auth-migrator
+    command: npm run migrate
+    build:
+      context: ./api-auth
+      dockerfile: Dockerfile.dev
+    networks:
+      - aTes
+    volumes:
+      - ./api-auth/src:/app/src
+    depends_on:
+      - mongo-replicator
+  api-task-manager:
+    container_name: aTes-api-task-manager
+    build:
+      context: ./api-task-manager
+      dockerfile: Dockerfile.dev
+    networks:
+      - aTes
+    environment:
+      APP_ENV: development
+    volumes:
+      - ./api-task-manager/src:/app/src
+    ports:
+      - 4001:3001
+      - 8083:8082
+    depends_on:
+      - redis
+      - mongo-replicator
+  api-task-manager-migrator:
+    container_name: api-task-manager-migrator
+    command: npm run migrate
+    build:
+      context: ./api-task-manager
+      dockerfile: Dockerfile.dev
+    networks:
+      - aTes
+    volumes:
+      - ./api-task-manager/src:/app/src
+    depends_on:
+      - mongo-replicator
+  web:
+    container_name: aTes-web
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./web/src:/app/src
+    networks:
+      - aTes
+    environment:
+      NODE_ENV: development
+      HRM_HOST: 0.0.0.0
+    ports:
+      - 3002:3002
+      - 8081:8081
+
+networks:
+  aTes:
+    name: aTes-network
+
+volumes:
+  mongodb:
+  mongodb-cfg:

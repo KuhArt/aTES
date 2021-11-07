@@ -1,0 +1,56 @@
+version: '3.6'
+services:
+  mongo-test:
+    container_name: aTes-test-mongo
+    image: mongo:4.2
+    command: --replSet test-rs --bind_ip_all
+    networks:
+      - aTes-test
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  mongo-replicator-test:
+    container_name: aTes-test-mongo-replicator
+    build: ./api/mongo-replicator
+    environment:
+      - HOST=mongo-test
+      - PORT=27017
+      - REPLICA_SET_NAME=test-rs
+      - IMMORTAL=true
+    networks:
+      - aTes-test
+    depends_on:
+      - mongo-test
+  redis-test:
+    container_name: aTes-test-redis
+    image: redis:5.0.5
+    command: redis-server --appendonly yes
+    hostname: redis
+    networks:
+      - aTes-test
+  api-test:
+    container_name: aTes-test-api
+    command: npm test
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    networks:
+      - aTes-test
+    environment:
+      APP_ENV: test
+    depends_on:
+      - redis-test
+      - mongo-replicator-test
+  web-test:
+    container_name: aTes-test-web
+    command: npm test
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    networks:
+      - aTes-test
+    environment:
+      NODE_ENV: development
+
+networks:
+  aTes-test:
+    name: aTes-test-network

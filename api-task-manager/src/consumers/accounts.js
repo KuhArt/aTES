@@ -33,7 +33,27 @@ processor.on('accounts:created', async (user) => {
   }
 });
 
-console.log('processor.topic: ', processor.topic)
+const updateHandler = async (user) => {
+  try {
+    await userService.updateOne({
+      publicId: user.publicId,
+    },
+    (old) => {
+      return {
+        ...old,
+        publicId: user.publicId,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      }
+    })
+  } catch (error) {
+    console.error(error);
+  }
+}
+processor.on('accounts:updated', updateHandler);
+processor.on('accounts:roleHasChanged', updateHandler);
 
 async function main() {
   await processor.run();

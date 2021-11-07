@@ -1,0 +1,109 @@
+{
+  "name": "react-starter",
+  "author": "Paralect",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paralect/koa-react-starter.git"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "paralect"
+  ],
+  "engines": {
+    "node": ">= 14"
+  },
+  "scripts": {
+    "start": "webpack serve --color --config webpack.dev.config.js",
+    "test": "run-s test:**",
+    "test:eslint": "eslint --ext js --ext jsx ./src",
+    "test:stylelint": "stylelint \"src/**/*.pcss\"",
+    "build": "webpack --config webpack.prod.config.js",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "prepare": "husky install",
+    "chromatic": "npx chromatic --project-token=CHROMATIC_PROJECT_TOKEN"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "2.8.0",
+    "@reduxjs/toolkit": "1.6.1",
+    "axios": "0.21.1",
+    "classnames": "2.3.1",
+    "core-js": "3.16.4",
+    "history": "4.10.1",
+    "lodash": "4.17.21",
+    "postcss": "8.3.6",
+    "prop-types": "15.7.2",
+    "qs": "6.10.1",
+    "querystring": "0.2.1",
+    "react": "17.0.2",
+    "react-datepicker": "4.2.1",
+    "react-dom": "17.0.2",
+    "react-dropzone": "11.3.4",
+    "react-hook-form": "7.14.2",
+    "react-modal": "3.14.3",
+    "react-redux": "7.2.4",
+    "react-router": "5.2.1",
+    "react-router-dom": "5.2.1",
+    "react-select": "4.3.1",
+    "regenerator-runtime": "0.13.9",
+    "socket.io-client": "4.2.0",
+    "uuid": "8.3.2",
+    "webpack": "5.51.1",
+    "yup": "0.32.9"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.14.8",
+    "@babel/core": "7.15.0",
+    "@babel/eslint-parser": "7.15.0",
+    "@babel/preset-env": "7.15.0",
+    "@babel/preset-react": "7.14.5",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
+    "@storybook/addon-actions": "6.4.0-alpha.33",
+    "@storybook/addon-docs": "6.4.0-alpha.33",
+    "@storybook/addon-essentials": "6.4.0-alpha.33",
+    "@storybook/addon-links": "6.4.0-alpha.33",
+    "@storybook/builder-webpack5": "6.4.0-alpha.33",
+    "@storybook/manager-webpack5": "6.4.0-alpha.33",
+    "@storybook/react": "6.4.0-alpha.33",
+    "@svgr/webpack": "5.5.0",
+    "babel-loader": "8.2.2",
+    "babel-plugin-module-resolver": "4.1.0",
+    "chromatic": "5.9.2",
+    "copy-webpack-plugin": "9.0.1",
+    "css-loader": "6.2.0",
+    "cssnano": "5.0.8",
+    "eslint": "7.32.0",
+    "eslint-config-airbnb": "18.2.1",
+    "eslint-plugin-import": "2.24.2",
+    "eslint-plugin-jsx-a11y": "6.4.1",
+    "eslint-plugin-react": "7.25.1",
+    "eslint-plugin-react-hooks": "4.2.0",
+    "html-webpack-plugin": "5.3.2",
+    "husky": "7.0.2",
+    "lint-staged": "11.1.2",
+    "mini-css-extract-plugin": "2.2.1",
+    "npm-run-all": "4.1.5",
+    "postcss-import": "14.0.2",
+    "postcss-loader": "6.1.1",
+    "postcss-nested": "5.0.6",
+    "postcss-preset-env": "6.7.0",
+    "react-refresh": "0.9.0",
+    "style-loader": "3.2.1",
+    "stylelint": "13.13.1",
+    "stylelint-config-standard": "22.0.0",
+    "svg-react-loader": "0.4.6",
+    "url-loader": "4.1.1",
+    "webpack-cli": "4.8.0",
+    "webpack-dev-server": "3.11.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --ext js --ext jsx --fix"
+    ],
+    "*.pcss": [
+      "stylelint --fix"
+    ]
+  }
+}

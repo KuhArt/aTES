@@ -2,17 +2,15 @@ const Joi = require('joi');
 
 const schema = Joi.object({
   _id: Joi.string(),
-  role: Joi.string().valid('employee', 'manager', 'admin').default('employee'),
   publicId: Joi.string(),
+  assignedPublicId: Joi.string(),
   createdOn: Joi.date(),
   updatedOn: Joi.date(),
-  firstName: Joi.string()
+  description: Joi.string()
     .required(),
-  lastName: Joi.string()
+  title: Joi.string()
     .required(),
-  email: Joi.string()
-    .email()
-    .required(),
+  status: Joi.string().valid('active', 'closed').default('active'),
 });
 
 module.exports = (obj) => schema.validate(obj, { allowUnknown: false });

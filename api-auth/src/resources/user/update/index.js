@@ -4,6 +4,7 @@ const validate = require('middlewares/validate');
 const userService = require('resources/user/user.service');
 
 const schema = Joi.object({
+  userId: Joi.string(),
   firstName: Joi.string()
     .trim()
     .messages({
@@ -22,40 +23,61 @@ const schema = Joi.object({
       'string.empty': 'Email is required',
       'string.email': 'Please enter a valid email address',
     }),
-  avatarFileKey: Joi.string()
-    .allow(null),
+  role: Joi.string().valid('employee', 'manager', 'admin').default('employee'),
 });
 
 async function validator(ctx, next) {
-  const { email } = ctx.validatedData;
+  const { email, userId } = ctx.validatedData;
 
   const isEmailInUse = await userService.exists({
     _id: { $ne: ctx.state.user._id },
     email,
   });
 
-  ctx.assertError(isEmailInUse, {
+  ctx.assertError(!isEmailInUse, {
     email: ['This email is already in use'],
+  });
+
+  const isUserExists = await userService.exists({
+    _id: userId,
+  });
+
+  ctx.assertError(!isEmailInUse, {
+    userId: ['This user doesn\'t exist'],
   });
 
   await next();
 }
 
 async function handler(ctx) {
-  let { user } = ctx.state;
-
   const data = ctx.validatedData;
 
-  if (Object.keys(data).length > 0) {
-    user = await userService.updateOne(
-      { _id: user._id },
-      (old) => ({ ...old, ...data }),
-    );
-  }
+  let roleHasChanged = false;
+  const user = await userService.updateOne(
+    { _id: data.userId },
+    (old) => {
+      roleHasChanged = old.role !== data.role;
+      return { ...old, ...data };
+    },
+  );
+
+   if (roleHasChanged) {
+    await kafkaService.send({
+      topic: 'accounts',
+      event: 'accounts:roleHasChanged',
+      data: user,
+    });
+   } else {
+    await kafkaService.send({
+      topic: 'accounts',
+      event: 'accounts:updated',
+      data: user,
+    });
+   }
 
   ctx.body = userService.getPublic(user);
 }
 
 module.exports.register = (router) => {
-  router.put('/current', validate(schema), validator, handler);
+  router.put('/', validate(schema), validator, handler);
 };

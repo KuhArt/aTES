@@ -2,7 +2,7 @@
 
 const { Kafka } = require('kafkajs');
 const { KafkaProcessor } = require('../kafka-processor');
-
+const userService = require('resources/user/user.service');
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const consumer = kafka.consumer({ groupId: 'accounts-tasks' });
 
@@ -12,22 +12,48 @@ const processor = new KafkaProcessor('accounts', consumer, {
     return { skip: false };
   },
   onFail: async (message) => {
-    console.log('onFail')
+    console.log('onFail', message)
   },
   onSuccess: async (message) => {
-    console.log('onSuccess')    
+    console.log('onSuccess', message)    
   },
 });
 
-processor.on('accounts:created', async ({ data: user }) => {
+processor.on('accounts:created', async (user) => {
   try {
-    console.log('accounts:created','accounts:created','accounts:created')
+    await userService.create({
+      publicId: user.publicId,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    })
   } catch (error) {
     console.error(error);
   }
 });
 
-console.log('processor.topic: ', processor.topic)
+const updateHandler = async (user) => {
+  try {
+    await userService.updateOne({
+      publicId: user.publicId,
+    },
+    (old) => {
+      return {
+        ...old,
+        publicId: user.publicId,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      }
+    })
+  } catch (error) {
+    console.error(error);
+  }
+}
+processor.on('accounts:updated', updateHandler);
+processor.on('accounts:roleHasChanged', updateHandler);
 
 async function main() {
   await processor.run();

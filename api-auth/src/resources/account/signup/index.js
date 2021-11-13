@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const kafkaService = require('services/kafka.service');
+const { v4: uuidv4 } = require('uuid');
 
 const validate = require('middlewares/validate');
 const securityUtil = require('security.util');
@@ -70,6 +71,7 @@ async function handler(ctx) {
   const user = await userService.create({
     firstName: data.firstName,
     lastName: data.lastName,
+    publicId: uuidv4(),
     email: data.email,
     passwordHash: hash.toString(),
     isEmailVerified: false,

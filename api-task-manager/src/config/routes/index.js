@@ -1,14 +1,11 @@
 const attachThrowError = require('middlewares/attachThrowError');
-
-const auth = require('./middlewares/auth.middleware');
-const tryToAttachUser = require('./middlewares/tryToAttachUser.middleware');
-const extractTokens = require('./middlewares/extractTokens.middleware');
+const config = require('config');
 const publicRoutes = require('./public');
+const jwt = require('koa-jwt');
 
 const defineRoutes = (app) => {
   app.use(attachThrowError);
-
-  app.use(tryToAttachUser);
+  app.use(jwt({ secret: config.jwt.secret }))
 
   publicRoutes(app);
 };

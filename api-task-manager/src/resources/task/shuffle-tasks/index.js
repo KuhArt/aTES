@@ -1,13 +1,10 @@
 const Joi = require('joi');
 const kafkaService = require('services/kafka.service');
-const { v4: uuidv4 } = require('uuid');
+const _ = require('lodash');
 
 const validate = require('middlewares/validate');
-const securityUtil = require('security.util');
 const userService = require('resources/user/user.service');
 const taskService = require('resources/task/task.service');
-
-const config = require('config');
 
 const schema = Joi.object({});
 
@@ -29,28 +26,26 @@ async function validator(ctx, next) {
 }
 
 async function handler(ctx) {
-  const data = ctx.validatedData;
-
   const { results: tasks } = await taskService.find({ status: 'active' });
-  const { results: managers } = await managerService.find({ role: 'manager' });
+  const { results: managers } = await userService.find({ role: 'manager' });
 
   const taskPromises = tasks.map(async (task) => {
-    const managerIndex = (Math.random() * managers.length) | 0
-    const newTask = await taskService.updateOne({ _id: id }, (old) => {
+    const managerIndex = (Math.random() * managers.length) | 0;
+    const newTask = await taskService.updateOne({ _id: task._id }, (old) => {
       return {
         ...old,
-        assignedPublicId: manager[managerIndex].publicId
-      }
+        assignedPublicId: managers[managerIndex].publicId,
+      };
     });
     await kafkaService.send({
       topic: 'tasks',
-      event: 'tasks:assigned',
-      data: task,
+      event: 'task:assigned',
+      version: 2,
+      data: _.omit(newTask, ['_id']),
     });
-  })
+  });
 
-
-  ctx.body = task;
+  ctx.body = Promise.all(taskPromises);
 }
 
 module.exports.register = (router) => {

@@ -74,6 +74,7 @@ services:
       APP_ENV: development
     volumes:
       - ./api-auth/src:/app/src
+      - ./schema:/app/src/schema
     ports:
       - 3001:3001
       - 8082:8082
@@ -103,6 +104,7 @@ services:
       APP_ENV: development
     volumes:
       - ./api-task-manager/src:/app/src
+      - ./schema:/app/src/schema
     ports:
       - 4001:3001
       - 8083:8082

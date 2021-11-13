@@ -1,11 +1,11 @@
 const Joi = require('joi');
 const kafkaService = require('services/kafka.service');
+const _ = require('lodash');
 const { v4: uuidv4 } = require('uuid');
 
 const validate = require('middlewares/validate');
 const securityUtil = require('security.util');
 const userService = require('resources/user/user.service');
-const emailService = require('services/email.service');
 
 const config = require('config');
 
@@ -51,7 +51,7 @@ async function validator(ctx, next) {
   const { email } = ctx.validatedData;
 
   const isUserExists = await userService.exists({ email });
-  console.log('isUserExists: ', isUserExists)
+  console.log('isUserExists: ', isUserExists);
   ctx.assertError(!isUserExists, {
     email: ['User with this email is already registered'],
   });
@@ -61,7 +61,6 @@ async function validator(ctx, next) {
 
 async function handler(ctx) {
   const data = ctx.validatedData;
-  
 
   const [hash, signupToken] = await Promise.all([
     securityUtil.getHash(data.password),
@@ -84,7 +83,8 @@ async function handler(ctx) {
   await kafkaService.send({
     topic: 'accounts',
     event: 'accounts:created',
-    data: user,
+    version: 1,
+    data: _.pick(user, ['publicId', 'firstName', 'lastName', 'email', 'role']),
   });
 
   ctx.body = {

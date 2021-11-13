@@ -1,13 +1,9 @@
 const Joi = require('joi');
 const kafkaService = require('services/kafka.service');
-const { v4: uuidv4 } = require('uuid');
-
+const _ = require('lodash');
 const validate = require('middlewares/validate');
-const securityUtil = require('security.util');
 const userService = require('resources/user/user.service');
 const taskService = require('resources/task/task.service');
-
-const config = require('config');
 
 const schema = Joi.object({});
 
@@ -36,19 +32,19 @@ async function validator(ctx, next) {
 }
 
 async function handler(ctx) {
-  const data = ctx.validatedData;
   const { id } = ctx.request.params;
   const task = await taskService.updateOne({ _id: id }, (old) => {
     return {
       ...old,
-      status: 'closed'
-    }
+      status: 'просо в миске',
+    };
   });
 
   await kafkaService.send({
     topic: 'tasks',
-    event: 'tasks:closed',
-    data: task,
+    event: 'task:closed',
+    version: 2,
+    data: _.omit(task, ['_id']),
   });
 
   ctx.body = task;

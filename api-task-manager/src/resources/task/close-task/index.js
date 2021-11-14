@@ -43,8 +43,8 @@ async function handler(ctx) {
   await kafkaService.send({
     topic: 'tasks',
     event: 'task:closed',
-    version: 2,
-    data: _.omit(task, ['_id']),
+    version: 1,
+    data: _.pick(task, ['publicId', 'assignedPublicId']),
   });
 
   ctx.body = task;

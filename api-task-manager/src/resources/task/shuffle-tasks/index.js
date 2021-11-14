@@ -40,8 +40,8 @@ async function handler(ctx) {
     await kafkaService.send({
       topic: 'tasks',
       event: 'task:assigned',
-      version: 2,
-      data: _.omit(newTask, ['_id']),
+      version: 1,
+      data: _.pick(newTask, ['publicId', 'assignedPublicId']),
     });
   });
 

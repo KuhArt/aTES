@@ -94,7 +94,7 @@ processor.on('task:assigned', async ({ data: task, metadata }) => {
 });
 
 processor.on('task:closed', async ({ data: task, metadata }) => {
-  const [resource, name] = 'task:closed'.split(':');
+  const [resource, name] = 'd'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
   const result = validate(task);

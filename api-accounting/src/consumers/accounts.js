@@ -8,7 +8,7 @@ const { KafkaProcessor } = require('../kafka-processor');
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const consumer = kafka.consumer({ groupId: 'accounts-tasks' });
 
-const processor = new KafkaProcessor('accounts', consumer, {
+const processor = new KafkaProcessor('accounts-stream', consumer, {
   onStart: async () => {
     console.log('onStart');
     return { skip: false };

@@ -81,7 +81,7 @@ async function handler(ctx) {
   });
 
   await kafkaService.send({
-    topic: 'accounts',
+    topic: 'accounts-stream',
     event: 'account:created',
     version: 1,
     data: _.pick(user, ['publicId', 'firstName', 'lastName', 'email', 'role']),

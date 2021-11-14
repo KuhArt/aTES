@@ -3,6 +3,7 @@ module.exports = {
     USERS: 'users',
     TOKENS: 'tokens',
     TASKS: 'tasks',
+    TRANSACTIONS: 'transactions',
   },
   TOKEN_TYPES: {
     ACCESS: 'access',

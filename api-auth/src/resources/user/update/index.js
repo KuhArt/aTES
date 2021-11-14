@@ -64,7 +64,7 @@ async function handler(ctx) {
 
   await kafkaService.send({
     topic: 'accounts',
-    event: 'accounts:updated',
+    event: 'account:updated',
     version: 1,
     data: _.pick(user, ['publicId', 'firstName', 'lastName', 'email', 'role']),
   });

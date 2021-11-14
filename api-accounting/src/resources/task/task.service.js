@@ -7,11 +7,4 @@ const validateSchema = require('./task.schema');
 
 const service = db.createService(constants.DATABASE_DOCUMENTS.TASKS, { validate: validateSchema });
 
-
-const privateFields = [];
-
-service.getPublic = (user) => {
-  return _.omit(user, privateFields);
-};
-
 module.exports = service;

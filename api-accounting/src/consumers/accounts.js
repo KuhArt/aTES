@@ -2,13 +2,14 @@
 
 const { Kafka } = require('kafkajs');
 const userService = require('resources/user/user.service');
+const getSchema = require('schema/events');
 const { KafkaProcessor } = require('../kafka-processor');
 
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
 const consumer = kafka.consumer({ groupId: 'accounts-tasks' });
 
 const processor = new KafkaProcessor('accounts', consumer, {
-  onStart: async (message) => {
+  onStart: async () => {
     console.log('onStart');
     return { skip: false };
   },
@@ -20,7 +21,13 @@ const processor = new KafkaProcessor('accounts', consumer, {
   },
 });
 
-processor.on('accounts:created', async (user) => {
+processor.on('account:created', async ({ data: user, metadata }) => {
+  const [resource, name] = 'account:created'.split(':');
+  const validate = getSchema({ resource, name, version: metadata.version });
+
+  const result = validate(user);
+  console.log('Validaton consume user create: ', result);
+
   try {
     await userService.create({
       publicId: user.publicId,
@@ -34,7 +41,14 @@ processor.on('accounts:created', async (user) => {
   }
 });
 
-const updateHandler = async (user) => {
+const updateHandler = async ({ data: user, metadata }) => {
+  const [resource, name] = 'account:updated'.split(':');
+  const validate = getSchema({ resource, name, version: metadata.version });
+
+  const result = validate(user);
+
+  console.log('Validaton consume user update: ', result);
+
   try {
     await userService.updateOne({
       publicId: user.publicId,
@@ -53,8 +67,7 @@ const updateHandler = async (user) => {
     console.error(error);
   }
 };
-processor.on('accounts:updated', updateHandler);
-processor.on('accounts:roleHasChanged', updateHandler);
+processor.on('account:updated', updateHandler);
 
 async function main() {
   await processor.run();

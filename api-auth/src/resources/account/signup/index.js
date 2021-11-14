@@ -82,7 +82,7 @@ async function handler(ctx) {
 
   await kafkaService.send({
     topic: 'accounts',
-    event: 'accounts:created',
+    event: 'account:created',
     version: 1,
     data: _.pick(user, ['publicId', 'firstName', 'lastName', 'email', 'role']),
   });

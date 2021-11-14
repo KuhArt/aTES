@@ -21,8 +21,8 @@ const processor = new KafkaProcessor('accounts', consumer, {
   },
 });
 
-processor.on('accounts:created', async ({ data: user, metadata }) => {
-  const [resource, name] = 'accounts:created'.split(':');
+processor.on('account:created', async ({ data: user, metadata }) => {
+  const [resource, name] = 'account:created'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
   const result = validate(user);
@@ -42,7 +42,7 @@ processor.on('accounts:created', async ({ data: user, metadata }) => {
 });
 
 const updateHandler = async ({ data: user, metadata }) => {
-  const [resource, name] = 'accounts:updated'.split(':');
+  const [resource, name] = 'account:updated'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
   const result = validate(user);
@@ -67,7 +67,7 @@ const updateHandler = async ({ data: user, metadata }) => {
     console.error(error);
   }
 };
-processor.on('accounts:updated', updateHandler);
+processor.on('account:updated', updateHandler);
 
 async function main() {
   await processor.run();

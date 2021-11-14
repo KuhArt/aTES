@@ -28,6 +28,11 @@ processor.on('account:created', async ({ data: user, metadata }) => {
   const result = validate(user);
   console.log('Validaton consume user create: ', result);
 
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
+
   try {
     await userService.create({
       publicId: user.publicId,
@@ -48,6 +53,11 @@ const updateHandler = async ({ data: user, metadata }) => {
   const result = validate(user);
 
   console.log('Validaton consume user update: ', result);
+
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
 
   try {
     await userService.updateOne({

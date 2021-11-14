@@ -37,7 +37,7 @@ async function handler(ctx) {
   });
 
   await kafkaService.send({
-    topic: 'tasks',
+    topic: 'tasks-stream',
     event: 'task:created',
     version: 2,
     data: _.omit(task, ['_id']),

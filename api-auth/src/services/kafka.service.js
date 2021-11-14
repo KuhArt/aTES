@@ -33,6 +33,11 @@ exports.send = async ({
 
   const result = validateMessage(message);
 
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
+
   console.log('Validaton result: ', result);
 
   await producer.send({

@@ -35,6 +35,11 @@ exports.send = async ({
 
   console.log('Validaton result: ', result);
 
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
+
   await producer.send({
     ...record,
     messages: [message],

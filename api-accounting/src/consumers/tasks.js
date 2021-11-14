@@ -21,7 +21,7 @@ const getClosesdTaskCost = () => {
   return _.random(20, 40);
 };
 
-const processor = new KafkaProcessor('accounts', consumer, {
+const processor = new KafkaProcessor('tasks', consumer, {
   onStart: async (message) => {
     console.log('onStart');
     return { skip: false };
@@ -39,6 +39,11 @@ processor.on('task:created', async ({ data: task, metadata }) => {
   const validate = getSchema({ resource, name, version: metadata.version });
 
   const result = validate(task);
+
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
 
   try {
     await taskService.create({
@@ -60,6 +65,11 @@ processor.on('task:assigned', async ({ data: task, metadata }) => {
   const validate = getSchema({ resource, name, version: metadata.version });
 
   const result = validate(task);
+
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
 
   try {
     const taskWithCost = await taskService.findOne({ publicId: task.publicId });
@@ -99,6 +109,11 @@ processor.on('task:closed', async ({ data: task, metadata }) => {
 
   const result = validate(task);
 
+  if (result.error) {
+    console.error(result.error);
+    return;
+  }
+
   try {
     const taskWithCost = await taskService.findOne({ publicId: task.publicId });
 
@@ -130,30 +145,6 @@ processor.on('task:closed', async ({ data: task, metadata }) => {
     console.error(error);
   }
 });
-
-const updateHandler = async ({ data: task, metadata }) => {
-  const [resource, name] = 'task:updated'.split(':');
-  const validate = getSchema({ resource, name, version: metadata.version });
-
-  const result = validate(task);
-
-  try {
-    await userService.updateOne({
-      publicId: task.publicId,
-    },
-    (old) => {
-      return {
-        ...old,
-        publicId: task.publicId,
-        assignedPublicId: task.assignedPublicId,
-        title: task.title,
-      };
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
-processor.on('task:updated', updateHandler);
 
 async function main() {
   await processor.run();

@@ -11,7 +11,7 @@ const schema = Joi.object({
   title: Joi.string()
     .regex(/^\[.*\].*/, { invert: true })
     .required(),
-  jira_id: Joi.string().required(),  
+  jira_id: Joi.string().required(),
   status: Joi.string().valid('птичка в клетке', 'просо в миске').default('птичка в клетке'),
 });
 

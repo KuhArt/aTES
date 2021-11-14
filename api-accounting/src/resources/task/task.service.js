@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const db = require('db');
 const constants = require('app.constants');
 

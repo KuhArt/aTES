@@ -12,6 +12,14 @@ module.exports = (app) => {
       target: 'http://api-task-manager:3001',
       changeOrigin: true,
     }
+  )))); 
+  app.use(convert(proxy.createProxyMiddleware((
+    '/accounting',
+    {
+      logLevel: 'debug',
+      target: 'http://api-accounting:3001',
+      changeOrigin: true,
+    }
   ))));
   app.use(mount('/users', userResource));
 };

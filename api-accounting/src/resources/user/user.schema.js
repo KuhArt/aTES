@@ -13,7 +13,7 @@ const schema = Joi.object({
   email: Joi.string()
     .email()
     .required(),
-  balance: Joi.number().required(),  
+  balance: Joi.number().required(),
 });
 
 module.exports = (obj) => schema.validate(obj, { allowUnknown: false });

@@ -30,7 +30,7 @@ async function handler(ctx) {
   const { results: managers } = await userService.find({ role: 'manager' });
 
   const taskPromises = tasks.map(async (task) => {
-    const managerIndex = (Math.random() * managers.length) | 0;
+    const managerIndex = _.random(managers.length);
     const newTask = await taskService.updateOne({ _id: task._id }, (old) => {
       return {
         ...old,

@@ -1,6 +1,4 @@
 const Joi = require('joi');
-const kafkaService = require('services/kafka.service');
-const _ = require('lodash');
 const validate = require('middlewares/validate');
 const userService = require('resources/user/user.service');
 const transactionService = require('resources/transaction/transaction.service');

@@ -9,8 +9,10 @@ const schema = Joi.object({
   description: Joi.string()
     .required(),
   title: Joi.string()
+    .regex(/^\[.*\].*/, { invert: true })
     .required(),
-  status: Joi.string().valid('active', 'closed').default('active'),
+  jira_id: Joi.string().required(),
+  status: Joi.string().valid('птичка в клетке', 'просо в миске').default('птичка в клетке'),
 });
 
 module.exports = (obj) => schema.validate(obj, { allowUnknown: false });

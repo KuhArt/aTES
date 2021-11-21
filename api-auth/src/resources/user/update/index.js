@@ -1,5 +1,8 @@
 const Joi = require('joi');
 
+const kafkaService = require('services/kafka.service');
+const _ = require('lodash');
+
 const validate = require('middlewares/validate');
 const userService = require('resources/user/user.service');
 
@@ -42,7 +45,7 @@ async function validator(ctx, next) {
     _id: userId,
   });
 
-  ctx.assertError(!isEmailInUse, {
+  ctx.assertError(!isUserExists, {
     userId: ['This user doesn\'t exist'],
   });
 
@@ -52,28 +55,19 @@ async function validator(ctx, next) {
 async function handler(ctx) {
   const data = ctx.validatedData;
 
-  let roleHasChanged = false;
   const user = await userService.updateOne(
     { _id: data.userId },
     (old) => {
-      roleHasChanged = old.role !== data.role;
       return { ...old, ...data };
     },
   );
 
-   if (roleHasChanged) {
-    await kafkaService.send({
-      topic: 'accounts',
-      event: 'accounts:roleHasChanged',
-      data: user,
-    });
-   } else {
-    await kafkaService.send({
-      topic: 'accounts',
-      event: 'accounts:updated',
-      data: user,
-    });
-   }
+  await kafkaService.send({
+    topic: 'accounts-stream',
+    event: 'account:updated',
+    version: 1,
+    data: _.pick(user, ['publicId', 'firstName', 'lastName', 'email', 'role']),
+  });
 
   ctx.body = userService.getPublic(user);
 }

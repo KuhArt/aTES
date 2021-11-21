@@ -28,6 +28,7 @@ import Forgot from 'pages/forgot';
 import MyTasks from 'pages/tasks';
 import MyAccount from 'pages/myAccount';
 import Accounting from 'pages/accounting';
+import Analytics from 'pages/analytics';
 import Reset from 'pages/reset';
 import Home from 'pages/home';
 import NotFound from 'pages/not-found';
@@ -64,6 +65,7 @@ const routeToComponent = {
   [routes.home.name]: Home,
   [routes.myTasks.name]: MyTasks,
   [routes.myAccount.name]: MyAccount,
+  [routes.analytics.name]: Analytics,
   [routes.accounting.name]: Accounting,
   [routes.profile.name]: Profile,
   [routes.notFound.name]: NotFound,

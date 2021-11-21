@@ -7,3 +7,7 @@ export const getCurrentStats = () => {
 export const getTotals = () => {
   return api.get('/accounting/totals');
 };
+
+export const getTasksStats = () => {
+  return api.get('/accounting/tasks-stats');
+};

@@ -24,7 +24,7 @@ function Home() {
   return (
     <>
       <h1 className={styles.title}>My Account</h1>
-      <h2 className={styles.title}>Balance {myAccount.balance}</h2>
+      <h2 className={styles.subtitle}>Balance {myAccount.balance}</h2>
       <div>
         {myAccount.transactions
           .map((transaction) => {

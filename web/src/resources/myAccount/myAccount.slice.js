@@ -7,8 +7,10 @@ const initialState = {
   transactions: [],
   totals: {
     amount: 0,
-    usersWithNegativeBalance: [],
-   },
+    usersWithNegativeBalance: 0,
+    transactions: [],
+  },
+  taskStats: {},
 };
 
 const userSlice = createSlice({
@@ -17,11 +19,12 @@ const userSlice = createSlice({
   reducers: {
     getCurrentStats: (state, action) => ({ ...state, ...action.payload.myAccount }),
     getTotals: (state, action) => ({ ...state, totals: action.payload.totals }),
+    getTasksStats: (state, action) => ({ ...state, taskStats: action.payload.taskStats }),
   },
 });
 
 const {
-  getCurrentStats, getTotals,
+  getCurrentStats, getTotals, getTasksStats,
 } = userSlice.actions;
 
 const getMyAccountStats = () => async (dispatch) => {
@@ -32,10 +35,15 @@ const getMyAccountTotals = () => async (dispatch) => {
   const totals = await api.getTotals();
   dispatch(getTotals({ totals }));
 };
+const getMyAccountTasksStats = () => async (dispatch) => {
+  const taskStats = await api.getTasksStats();
+  dispatch(getTasksStats({ taskStats }));
+};
 
 export const myAccountActions = {
   getMyAccountStats,
   getMyAccountTotals,
+  getMyAccountTasksStats,
 };
 
 export default userSlice.reducer;

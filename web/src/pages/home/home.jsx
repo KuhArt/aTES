@@ -31,8 +31,11 @@ function Home() {
   return (
     <>
       <h1 className={styles.title}>Tasks</h1>
-      <Button onClick={handleCreateTask}> Create Task </Button>
-      { user.role !== 'employee' && <Button onClick={handleShuffle}> Shuffle </Button> }
+      <div className={styles.buttons}> 
+        <Button onClick={handleCreateTask}>Create Task</Button>
+        &nbsp;
+        { user.role !== 'employee' && <Button onClick={handleShuffle}> Shuffle </Button> }
+      </div>
       <div>
         {tasks.map((task) => {
           return (

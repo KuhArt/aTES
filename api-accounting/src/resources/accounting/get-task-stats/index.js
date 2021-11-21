@@ -1,5 +1,4 @@
 const Joi = require('joi');
-const kafkaService = require('services/kafka.service');
 const _ = require('lodash');
 const moment = require('moment');
 const validate = require('middlewares/validate');
@@ -12,7 +11,7 @@ async function validator(ctx, next) {
   const { userPublicId } = ctx.state.user;
 
   const user = await userService.findOne({ publicId: userPublicId });
-  ctx.assertError(!user, {
+  ctx.assertError(user, {
     email: ['User doesn\'t exist'],
   });
 
@@ -26,17 +25,21 @@ async function validator(ctx, next) {
 }
 
 async function handler(ctx) {
-  const { startAt } = ctx.request.query;
+  const { results: tasks } = await taskService.find({ createdOn: { $gte: moment().startOf('month').toDate() } });
 
-  const tasks = await taskService.find({ createdOn: { $gte: startAt }, status: 'просо в миске' });
+  console.log(tasks);
 
   const stats = _(tasks)
+    .filter((task) => task.status === 'просо в миске')
     .groupBy((task) => {
       return moment(task.createdOn).format('YYYY-MM-DD');
     })
     .mapValues((tasksGroup) => {
       return _.sortBy(tasksGroup, 'cost.closed')[0];
-    }).value();
+    })
+    .value();
+
+  console.log(stats);
 
   ctx.body = stats;
 }

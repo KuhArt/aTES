@@ -4,10 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import * as myAccountSelectors from 'resources/myAccount/myAccount.selectors';
 
-import * as userSelectors from 'resources/user/user.selectors';
 import { myAccountActions } from 'resources/myAccount/myAccount.slice';
 
-import styles from './accounting.styles.pcss';
+import styles from './analytics.styles.pcss';
 
 function Home() {
   const dispatch = useDispatch();
@@ -17,40 +16,62 @@ function Home() {
 
   React.useEffect(() => {
     dispatch(myAccountActions.getMyAccountTotals());
+    dispatch(myAccountActions.getMyAccountTasksStats());
   }, [dispatch]);
 
   return (
     <>
-      <h1 className={styles.title}>Accounting</h1>
+      <h1 className={styles.title}>Analytics</h1>
       <h2 className={styles.subtitle}>
         Earn today:
         {' '}
         {myAccount.totals.amount}
         {' '}
       </h2>
-      {/* <h2 className={styles.title}>
+      <h2 className={styles.subtitle}>
         Users with negative balance:
         {' '}
         {myAccount.totals.usersWithNegativeBalance}
         {' '}
-      </h2> */}
-      {myAccount.totals.transactions
-        .map((transaction) => {
+      </h2>
+      {Object.entries(myAccount.taskStats)
+        .map(([date, task]) => {
           return (
             <div
-              key={transaction._id}
+              key={task.jira_id}
               className={styles.meeting}
             >
               <div className={styles.time}>
                 #
-                {transaction.description.toUpperCase()}
+                {date}
+                {' '}
+                {task.jira_id}
+                {' '}
+                {task.title}
+              </div>
+
+              <div className={styles.description}>
+                {task.description}
               </div>
 
               <div className={styles['participants-list']}>
-                Amount:
-                {transaction.type === 'credit' ? '-' : '+'}
-                {transaction.amount}
+                Status:
+                {' '}
+                {task.status}
+              </div>  
+              <div className={styles['participants-list']}>
+                Price:
+                {' '}
+                {task.cost.closed}
               </div>
+
+              <div className={styles['participants-list']}>
+                Employee id:
+                {' '}
+                {task.assignedPublicId}
+              </div>
+              { task.status !== 'просо в миске' && <Button onClick={() => handleCloseTask(task._id)}> Close Task </Button>}
+
             </div>
           );
         })}

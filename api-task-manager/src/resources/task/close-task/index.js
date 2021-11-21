@@ -11,11 +11,11 @@ async function validator(ctx, next) {
   const { userPublicId } = ctx.state.user;
 
   const user = await userService.findOne({ publicId: userPublicId });
-  ctx.assertError(!user, {
-    email: ['User doesn\'t exist'],
+  ctx.assertError(user, {
+    user: ['User doesn\'t exist'],
   });
 
-  if (user.role !== 'manager') {
+  if (user.role !== 'employee') {
     ctx.status = 401;
     ctx.body = {};
     return;
@@ -23,9 +23,10 @@ async function validator(ctx, next) {
 
   const { id } = ctx.request.params;
 
-  const task = await taskService.findOne({ _id: id, status: 'active' });
-  ctx.assertError(!task, {
-    email: ['Task doesn\'t exist'],
+  const task = await taskService.findOne({ _id: id, status: 'птичка в клетке' });
+
+  ctx.assertError(task, {
+    task: ['Task doesn\'t exist'],
   });
 
   await next();

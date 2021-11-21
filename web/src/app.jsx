@@ -25,6 +25,9 @@ import MainLayout from 'layouts/main';
 import SignIn from 'pages/sign-in';
 import SignUp from 'pages/sign-up';
 import Forgot from 'pages/forgot';
+import MyTasks from 'pages/tasks';
+import MyAccount from 'pages/myAccount';
+import Accounting from 'pages/accounting';
 import Reset from 'pages/reset';
 import Home from 'pages/home';
 import NotFound from 'pages/not-found';
@@ -59,6 +62,9 @@ const routeToComponent = {
   [routes.forgot.name]: Forgot,
   [routes.reset.name]: Reset,
   [routes.home.name]: Home,
+  [routes.myTasks.name]: MyTasks,
+  [routes.myAccount.name]: MyAccount,
+  [routes.accounting.name]: Accounting,
   [routes.profile.name]: Profile,
   [routes.notFound.name]: NotFound,
 };

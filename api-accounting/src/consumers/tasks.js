@@ -12,7 +12,7 @@ const _ = require('lodash');
 const { KafkaProcessor } = require('../kafka-processor');
 
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
-const consumer = kafka.consumer({ groupId: 'accounts-tasks' });
+const consumer = kafka.consumer({ groupId: 'accounting-tasks' });
 
 const getAssignedTaskCost = () => {
   return _.random(10, 20);
@@ -34,37 +34,14 @@ const processor = new KafkaProcessor('tasks', consumer, {
   },
 });
 
-processor.on('task:created', async ({ data: task, metadata }) => {
-  const [resource, name] = 'task:created'.split(':');
-  const validate = getSchema({ resource, name, version: metadata.version });
-
-  const result = validate(task);
-
-  if (result.error) {
-    console.error(result.error);
-    return;
-  }
-
-  try {
-    await taskService.create({
-      publicId: task.publicId,
-      assignedPublicId: task.assignedPublicId,
-      title: task.title,
-      cost: {
-        assigned: getAssignedTaskCost(),
-        closed: getClosesdTaskCost(),
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-});
-
 processor.on('task:assigned', async ({ data: task, metadata }) => {
   const [resource, name] = 'task:assigned'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
-  const result = validate(task);
+  const result = validate({
+    data: task,
+    metadata,
+  });
 
   if (result.error) {
     console.error(result.error);
@@ -104,10 +81,13 @@ processor.on('task:assigned', async ({ data: task, metadata }) => {
 });
 
 processor.on('task:closed', async ({ data: task, metadata }) => {
-  const [resource, name] = 'd'.split(':');
+  const [resource, name] = 'task:closed'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
-  const result = validate(task);
+  const result = validate({
+    data: task,
+    metadata,
+  });
 
   if (result.error) {
     console.error(result.error);

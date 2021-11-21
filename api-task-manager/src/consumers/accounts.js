@@ -6,7 +6,7 @@ const getSchema = require('schema/events');
 const { KafkaProcessor } = require('../kafka-processor');
 
 const kafka = new Kafka({ brokers: ['kafka:9092'] });
-const consumer = kafka.consumer({ groupId: 'accounts-tasks' });
+const consumer = kafka.consumer({ groupId: 'task-manager-accounts' });
 
 const processor = new KafkaProcessor('accounts-stream', consumer, {
   onStart: async () => {
@@ -23,9 +23,14 @@ const processor = new KafkaProcessor('accounts-stream', consumer, {
 
 processor.on('account:created', async ({ data: user, metadata }) => {
   const [resource, name] = 'account:created'.split(':');
+  console.log('Validaton consume user create: ', 'account:created');
+
   const validate = getSchema({ resource, name, version: metadata.version });
 
-  const result = validate(user);
+  const result = validate({
+    data: user,
+    metadata,
+  });
   console.log('Validaton consume user create: ', result);
 
   if (result.error) {
@@ -50,7 +55,10 @@ const updateHandler = async ({ data: user, metadata }) => {
   const [resource, name] = 'account:updated'.split(':');
   const validate = getSchema({ resource, name, version: metadata.version });
 
-  const result = validate(user);
+  const result = validate({
+    data: user,
+    metadata,
+  });
 
   console.log('Validaton consume user update: ', result);
 

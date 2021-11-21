@@ -13,7 +13,7 @@ async function validator(ctx, next) {
   const { userPublicId } = ctx.state.user;
 
   const user = await userService.findOne({ publicId: userPublicId });
-  ctx.assertError(!user, {
+  ctx.assertError(user, {
     email: ['User doesn\'t exist'],
   });
 
@@ -42,5 +42,5 @@ async function handler(ctx) {
 }
 
 module.exports.register = (router) => {
-  router.get('/tasks-stats', validate(schema), validator, handler);
+  router.get('/totals', validate(schema), validator, handler);
 };

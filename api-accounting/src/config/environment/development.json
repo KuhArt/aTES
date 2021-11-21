@@ -1,6 +1,6 @@
 {
   "mongo": {
-    "connection": "mongodb://root:root@mongo/api-task-manager?authSource=admin&replicaSet=rs"
+    "connection": "mongodb://root:root@mongo/api-accounting?authSource=admin&replicaSet=rs"
   },
   "jwt": {
     "secret": "the_secret"

@@ -6,6 +6,7 @@ const eventMetadata = Joi.object({
   name: Joi.string().required(),
   timestamp: Joi.date().required(),
   producer: Joi.string().required(),
+  startProcessingOn: Joi.optional().allow(null),
 });
 
 

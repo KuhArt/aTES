@@ -35,7 +35,7 @@ async function handler(ctx) {
       return moment(task.createdOn).format('YYYY-MM-DD');
     })
     .mapValues((tasksGroup) => {
-      return _.sortBy(tasksGroup, 'cost.closed')[0];
+      return _.sortBy(tasksGroup, 'cost.closed').slice(-1)[0];
     })
     .value();
 

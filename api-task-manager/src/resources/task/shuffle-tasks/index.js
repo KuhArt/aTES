@@ -32,7 +32,7 @@ async function handler(ctx) {
   const taskPromises = tasks
     .filter(({ status }) => status === 'птичка в клетке')
     .map(async (task) => {
-      const managerIndex = _.random(managers.length);
+      const managerIndex = _.random(managers.length - 1);
       const newTask = await taskService.updateOne({ _id: task._id }, (old) => {
         return {
           ...old,
@@ -48,6 +48,8 @@ async function handler(ctx) {
 
       return newTask;
     });
+
+  await Promise.all(taskPromises);
 
   const { results: allTasks } = await taskService.find({});
   ctx.body = allTasks;

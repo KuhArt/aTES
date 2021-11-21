@@ -58,8 +58,7 @@ const updateHandler = async ({ data: user, metadata }) => {
     metadata,
   });
 
-  console.log('Validaton consume user update: ', result);
-  
+
   if (result.error) {
     console.error(result.error);
     return;

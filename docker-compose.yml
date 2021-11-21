@@ -91,6 +91,7 @@ services:
       - aTes
     volumes:
       - ./api-auth/src:/app/src
+      - ./schema:/app/src/schema
     depends_on:
       - mongo-replicator
   api-task-manager:
@@ -121,6 +122,7 @@ services:
       - aTes
     volumes:
       - ./api-task-manager/src:/app/src
+      - ./schema:/app/src/schema
     depends_on:
       - mongo-replicator      
   api-accounting:
@@ -137,27 +139,28 @@ services:
       - ./schema:/app/src/schema
     ports:
       - 4002:3001
-      - 8083:8082
+      - 8084:8082
     depends_on:
       - redis
       - mongo-replicator  
   api-accounting-migrator:
-    container_name: api-task-manager-migrator
+    container_name: api-accounting-migrator
     command: npm run migrate
     build:
-      context: ./api-task-manager
+      context: ./api-accounting
       dockerfile: Dockerfile.dev
     networks:
       - aTes
     volumes:
-      - ./api-task-manager/src:/app/src
+      - ./schema:/app/src/schema
+      - ./api-accounting/src:/app/src
     depends_on:
       - mongo-replicator
   api-accounting-scheduler:
     container_name: api-accounting-scheduler
     command: npm run schedule-dev
     build:
-      context: .
+      context: ./api-accounting
       dockerfile: Dockerfile.dev
     networks:
       - aTes

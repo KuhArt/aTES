@@ -29,6 +29,11 @@ module.exports = (app) => {
   app.use(cors({ credentials: true }));
   app.use(helmet());
   qs(app);
+  app.use(async (ctx, next) => {
+    if (ctx.path.includes('/task')) ctx.disableBodyParser = true;
+    console.log('ctx.disableBodyParser: ', ctx.disableBodyParser);
+    await next();
+  });
   app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }));
   app.use(requestLogger());
 

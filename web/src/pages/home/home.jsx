@@ -1,65 +1,76 @@
 import React from 'react';
 
+import { useDispatch, useSelector } from 'react-redux';
+
+import * as taskSelectors from 'resources/task/task.selectors';
+import { taskActions } from 'resources/task/task.slice';
+import * as userSelectors from 'resources/user/user.selectors';
+
+import Button from 'components/Button';
+
 import styles from './home.styles.pcss';
 
-const meetings = [
-  {
-    time: '08:00 AM',
-    description: 'Discussion of the attack strategy',
-    participants: [
-      'Obi-Wan Kenobi',
-      'Luke Skywalker',
-    ],
-  },
-  {
-    time: '11:00 AM',
-    description: 'Family meeting to discuss disagreements',
-    participants: [
-      'Anakin Skywalker',
-      'Luke Skywalker',
-    ],
-  },
-  {
-    time: '02:00 PM',
-    description: 'Attack on Death Star',
-    participants: [
-      'Luke Skywalker',
-      'Han Solo',
-    ],
-  },
-];
-
 function Home() {
+  const dispatch = useDispatch();
+
+  const tasks = useSelector(taskSelectors.selectTasks);
+  const user = useSelector(userSelectors.selectUser);
+
+  React.useEffect(() => {
+    dispatch(taskActions.listTasks());
+  }, []);
+
+  const handleCreateTask = () => {
+    dispatch(taskActions.createTask());
+  };
+
+  const handleShuffle = () => {
+    dispatch(taskActions.shuffleTasks());
+  };
+
   return (
     <>
-      <h1 className={styles.title}>Meetings</h1>
-
+      <h1 className={styles.title}>Tasks</h1>
+      <div className={styles.buttons}> 
+        <Button onClick={handleCreateTask}>Create Task</Button>
+        &nbsp;
+        { user.role !== 'employee' && <Button onClick={handleShuffle}> Shuffle </Button> }
+      </div>
       <div>
-        {meetings.map((meeting) => (
-          <div
-            key={meeting.description}
-            className={styles.meeting}
-          >
-            <div className={styles.time}>
-              {meeting.time}
-            </div>
+        {tasks.map((task) => {
+          return (
+            <div
+              key={task.jira_id}
+              className={styles.meeting}
+            >
+              <div className={styles.time}>
+                #
+                {task.jira_id}
+                {' '}
+                {task.title}
+              </div>
 
-            <div className={styles.description}>
-              {meeting.description}
-            </div>
+              <div className={styles['participants-list']}>
+                Description:
+                {' '}
+                {task.description}
+              </div>
 
-            <h3 className={styles.participantsTitle}>
-              Participants:
-            </h3>
-            <ul className={styles.participantsList}>
-              {meeting.participants.map((participator) => (
-                <li key={participator}>
-                  {participator}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+              <div className={styles['participants-list']}>
+                Status:
+                {' '}
+                {task.status}
+              </div>
+
+              <div className={styles['participants-list']}>
+                Employee id:
+                {' '}
+                {task.assignedPublicId}
+              </div>
+
+            </div>
+          );
+        })}
       </div>
     </>
   );

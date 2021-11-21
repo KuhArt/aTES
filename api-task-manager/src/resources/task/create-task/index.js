@@ -8,20 +8,23 @@ const taskService = require('resources/task/task.service');
 const _ = require('lodash');
 
 const schema = Joi.object({
-  assignedPublicId: Joi.string(),
   description: Joi.string()
     .required(),
   title: Joi.string()
     .required(),
+  jira_id: Joi.string()
+    .required(),
 });
 
 async function validator(ctx, next) {
-  const { assignedPublicId } = ctx.validatedData;
+  console.log('ctx.request.body: ', ctx.request.body);
 
-  const isUserExists = await userService.exists({ publicId: assignedPublicId });
-  ctx.assertError(!isUserExists, {
-    email: ['User with this email is already registered'],
-  });
+  const [user] = await userService.aggregate([{ $match: { role: 'employee' } }, { $sample: { size: 1 } }]);
+
+  ctx.validatedData = {
+    ...ctx.validatedData,
+    assignedPublicId: user.publicId,
+  };
 
   await next();
 }
@@ -30,8 +33,9 @@ async function handler(ctx) {
   const data = ctx.validatedData;
 
   const task = await taskService.create({
-    description: data.firstName,
-    title: data.lastName,
+    description: data.description,
+    title: data.title,
+    jira_id: data.jira_id,
     publicId: uuidv4(),
     assignedPublicId: data.assignedPublicId,
   });
@@ -43,12 +47,12 @@ async function handler(ctx) {
     data: _.omit(task, ['_id']),
   });
 
-  await kafkaService.send({
-    topic: 'tasks',
-    event: 'task:assigned',
-    version: 1,
-    data: _.pick(task, ['publicId', 'assignedPublicId']),
-  });
+  // await kafkaService.send({
+  //   topic: 'tasks',
+  //   event: 'task:assigned',
+  //   version: 1,
+  //   data: _.pick(task, ['publicId', 'assignedPublicId']),
+  // });
 
   ctx.body = task;
 }

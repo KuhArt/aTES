@@ -51,11 +51,11 @@ class KafkaProcessor {
       if (response && response.skip) return;
     }
 
-    m.metadata.startProcessingOn = Date.now();
+   m.metadata.startProcessingOn = Date.now();
 
     const results = await Promise.allSettled(
       Array.from(this.listeners.get(m.metadata.name) || [])
-        .map((listener) => listener(data)),
+        .map((listener) => listener({ data, metadata })),
     );
 
     m.metadata.endProcessingOn = Date.now();

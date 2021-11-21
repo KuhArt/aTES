@@ -6,6 +6,7 @@ const moment = require('moment');
 const validate = require('middlewares/validate');
 const userService = require('resources/user/user.service');
 const taskService = require('resources/task/task.service');
+const transactionService = require('resources/transaction/transaction.service');
 
 const schema = Joi.object({});
 
@@ -13,7 +14,7 @@ async function validator(ctx, next) {
   const { userPublicId } = ctx.state.user;
 
   const user = await userService.findOne({ publicId: userPublicId });
-  ctx.assertError(!user, {
+  ctx.assertError(user, {
     email: ['User doesn\'t exist'],
   });
 
@@ -27,20 +28,20 @@ async function validator(ctx, next) {
 }
 
 async function handler(ctx) {
-  const tasksCompleted = await taskService.find({ createdOn: { $gte: moment().startOf('day') }, status: 'просо в миске' });
-  const tasksAssigned = await taskService.find({ createdOn: { $gte: moment().startOf('day') }, status: 'птичка в клетке' });
+  const { results: transactions } = await transactionService.find({ createdOn: { $gte: moment().startOf('day').toDate() } });
 
-  const completedAmount = _.sumBy(tasksCompleted, 'amount');
-  const assignedAmount = _.sumBy(tasksAssigned, 'amount');
+  const creditAmount = _.sumBy(transactions.filter(({ type }) => type === 'credit'), 'amount');
+  const debitAmount = _.sumBy(transactions.filter(({ type }) => type === 'debit'), 'amount');
 
-  const usersWithNegativeBalance = await userService.count({ balance: { $lte: 0 } });
+  const usersWithNegativeBalance = await userService.count({ balance: { $lte: 0 }, role: 'employee' });
 
   ctx.body = {
-    amount: assignedAmount - completedAmount,
+    amount: debitAmount - creditAmount,
     usersWithNegativeBalance,
+    transactions,
   };
 }
 
 module.exports.register = (router) => {
-  router.get('/tasks-stats', validate(schema), validator, handler);
+  router.get('/totals', validate(schema), validator, handler);
 };

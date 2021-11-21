@@ -15,23 +15,26 @@ exports.run = async () => {
 exports.send = async ({
   event, version, data, ...record
 }) => {
+  const messageData = {
+    data,
+    metadata: {
+      _id: nanoid(),
+      name: event,
+      version,
+      timestamp: new Date(),
+      producer: 'api-auth',
+    },
+  };
+
   const message = {
-    value: JSON.stringify({
-      data,
-      metadata: {
-        _id: nanoid(),
-        name: event,
-        version,
-        timestamp: new Date(),
-        producer: 'api-auth',
-      },
-    }),
+    value: JSON.stringify(messageData),
   };
 
   const [resource, name] = event.split(':');
   const validateMessage = getSchema({ resource, name, version });
 
-  const result = validateMessage(message);
+  console.log('message: ', messageData);
+  const result = validateMessage(messageData);
 
   if (result.error) {
     console.error(result.error);

@@ -12,7 +12,7 @@ async function validator(ctx, next) {
   const { userPublicId } = ctx.state.user;
 
   const user = await userService.findOne({ publicId: userPublicId });
-  ctx.assertError(!user, {
+  ctx.assertError(user, {
     email: ['User doesn\'t exist'],
   });
 
@@ -26,28 +26,35 @@ async function validator(ctx, next) {
 }
 
 async function handler(ctx) {
-  const { results: tasks } = await taskService.find({ status: 'active' });
-  const { results: managers } = await userService.find({ role: 'manager' });
+  const { results: tasks } = await taskService.find({});
+  const { results: managers } = await userService.find({ role: 'employee' });
 
-  const taskPromises = tasks.map(async (task) => {
-    const managerIndex = _.random(managers.length);
-    const newTask = await taskService.updateOne({ _id: task._id }, (old) => {
-      return {
-        ...old,
-        assignedPublicId: managers[managerIndex].publicId,
-      };
-    });
-    await kafkaService.send({
-      topic: 'tasks',
-      event: 'task:assigned',
-      version: 1,
-      data: _.pick(newTask, ['publicId', 'assignedPublicId']),
-    });
-  });
+  const taskPromises = tasks
+    .filter(({ status }) => status === 'птичка в клетке')
+    .map(async (task) => {
+      const managerIndex = _.random(managers.length - 1);
+      const newTask = await taskService.updateOne({ _id: task._id }, (old) => {
+        return {
+          ...old,
+          assignedPublicId: managers[managerIndex].publicId,
+        };
+      });
+      await kafkaService.send({
+        topic: 'tasks',
+        event: 'task:assigned',
+        version: 1,
+        data: _.pick(newTask, ['publicId', 'assignedPublicId']),
+      });
 
-  ctx.body = Promise.all(taskPromises);
+      return newTask;
+    });
+
+  await Promise.all(taskPromises);
+
+  const { results: allTasks } = await taskService.find({});
+  ctx.body = allTasks;
 }
 
 module.exports.register = (router) => {
-  router.post('/close/:id', validate(schema), validator, handler);
+  router.post('/shuffle', validate(schema), validator, handler);
 };
